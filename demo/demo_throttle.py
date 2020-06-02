@@ -5,11 +5,10 @@ import sys
 def main():
     from throttle import Registry
 
-    r: Registry = Registry(name="demo registry", window_length=10, attempts=3, break_length=2000)
+    r: Registry = Registry(name="demo registry", window_length=5000, attempts=5, break_length=2000)
 
     # Demo on throttling the iterations
     # - create the function first, which is decorated with throttle registry instance throttle wrapper
-
     @r.throttle
     def do_print(iteration):
         print(f"Iteration through function: {iteration}")
@@ -18,7 +17,7 @@ def main():
         do_print(x)
 
     # Demo on throttling single commands
-    # - wrap them in a lambda. and put into the explicit wrapper call
+    # - put what you need into the explicit wrapper call
     for x in range(1, 21):
         r.throttle(print(f"Iterating through anything else: {x}"))
 
