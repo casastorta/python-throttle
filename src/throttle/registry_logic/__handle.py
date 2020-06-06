@@ -17,7 +17,7 @@ class Handle(RegistrySettings):
         self.__count_attempts: int = 0
         super().__init__(*args, **kwargs)
 
-    def throttle(self, func: Callable):
+    def throttle(self, func: Callable):  # pragma: no cover
         @wraps(func)
         def wrapper_throttle(*args, **kwargs) -> Any:
             def __throttle_iterative() -> Iterable[Any]:
@@ -36,7 +36,7 @@ class Handle(RegistrySettings):
             return b
 
         def sleep_if_needed() -> None:
-            __action, __length = self.__stop_or_go()  # type: bool, float
+            __action, __length = self.stop_or_go()  # type: bool, float
             if __action == self.HOLD:
                 sleep(__length)
 
@@ -45,7 +45,8 @@ class Handle(RegistrySettings):
 
         return wrapper_throttle
 
-    def __stop_or_go(self) -> Tuple[bool, Union[float, int]]:
+    def stop_or_go(self) -> Tuple[bool, Union[float, int]]:
+        self._count_attempts += 1
         if not self._timer_start:
             # Nothing was happening yet, let's start fresh
             self._timer_start = self.__miliseconds(time())
@@ -76,7 +77,6 @@ class Handle(RegistrySettings):
         # We were allowed to run, so now we reset break timer start
         if self._break_timer_start:
             self._break_timer_start = None
-        self._count_attempts += 1
 
         return self.GO, 0
 
