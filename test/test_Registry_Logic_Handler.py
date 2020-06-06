@@ -21,13 +21,11 @@ class TestRegistryLogicHandler(TestCase):
 
     def test_stop_or_go_initialization(self):
         assert self.registry_instance._timer_start is None
-        assert self.registry_instance._break_timer_start is None
         assert self.registry_instance._count_attempts == 0
 
     def test_stop_or_go_attempts_count_one(self):
         go_nogo, wait_time = self.registry_instance.stop_or_go()  # type: bool, float
         assert self.registry_instance._timer_start is not None
-        assert self.registry_instance._break_timer_start is None
         assert self.registry_instance._count_attempts == 1
         assert go_nogo == self.registry_instance.GO
         assert wait_time == 0.0
@@ -42,7 +40,6 @@ class TestRegistryLogicHandler(TestCase):
         assert wait_time == 0.0
 
         assert self.registry_instance._timer_start is not None
-        assert self.registry_instance._break_timer_start is None
         assert self.registry_instance._count_attempts == 2
 
     def test_stop_or_go_attempts_count_hit_attempts_limit(self):
@@ -54,9 +51,8 @@ class TestRegistryLogicHandler(TestCase):
         assert go_nogo == self.registry_instance.HOLD
         assert wait_time > 0 and wait_time < self.BREAK_LENGTH
 
-        assert self.registry_instance._timer_start is not None
-        assert self.registry_instance._break_timer_start is not None
-        assert self.registry_instance._count_attempts == 4
+        assert self.registry_instance._timer_start is None
+        assert self.registry_instance._count_attempts == 3
 
     def test_stop_or_go_break_length_expiry(self):
         r: Registry = Registry("break length breaker", attempts=1, window_length=1, break_length=0)

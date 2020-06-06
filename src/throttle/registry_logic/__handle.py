@@ -1,3 +1,4 @@
+import logging
 from functools import wraps
 from time import sleep, time
 from typing import Any, Callable, Iterable, Optional, Tuple, Union
@@ -13,7 +14,6 @@ class Handle(RegistrySettings):
 
     def __init__(self, *args, **kwargs):
         self.__timer_start: Optional[int] = None
-        self.__break_timer_start: Optional[int] = None
         self.__count_attempts: int = 0
         super().__init__(*args, **kwargs)
 
@@ -22,9 +22,9 @@ class Handle(RegistrySettings):
         def wrapper_throttle(*args, **kwargs) -> Any:
             def __throttle_iterative() -> Iterable[Any]:
                 """Throttle call where func is iterative"""
-                for r in func(*args, **kwargs):
-                    yield r
+                for r in b:
                     sleep_if_needed()
+                    yield r
 
             sleep_if_needed()
             b = func(*args, **kwargs)
@@ -32,6 +32,8 @@ class Handle(RegistrySettings):
                 try:
                     iter(b)
                 except TypeError:
+                    return b
+                else:
                     return __throttle_iterative()
             return b
 
@@ -46,39 +48,51 @@ class Handle(RegistrySettings):
         return wrapper_throttle
 
     def stop_or_go(self) -> Tuple[bool, Union[float, int]]:
-        self._count_attempts += 1
-        if not self._timer_start:
-            # Nothing was happening yet, let's start fresh
-            self._timer_start = self.__miliseconds(time())
+        go_or_hold: bool = self.GO
+        hold_time_seconds: float = 0.0
 
-        # Circuit breaker functionality
-        current_militime: int = self.__miliseconds(time())
+        # Use this as base time
+        current_mili: int = self.__miliseconds(time())
 
-        # Check if we should be on hold still
-        if self._break_timer_start:
-            end_of_break: int = self._break_timer_start + self.break_length
-            if current_militime <= end_of_break:
-                new_break_len: int = end_of_break - current_militime
-                hold_time: float = new_break_len / 1000
-                return self.HOLD, hold_time
-        new_militime: int = self.__miliseconds(time())
+        # If window timer start not set, set it here now
+        if not self.__timer_start:
+            self.__timer_start = current_mili
 
-        # Check if we haven't broke count attempts for the window
-        if self._count_attempts >= self.attempts:
-            self._break_timer_start = new_militime
-            _hold_time: float = self.break_length / 1000
-            return self.HOLD, _hold_time
+        # Increase the usage counter
+        self.__count_attempts = self.__count_attempts + 1
 
-        # If we are outside of the window, reset count attempts and start of the window timer
-        if (new_militime - self._timer_start) >= self.window_length:
-            self._timer_start = None
-            self._count_attempts = 0
+        # Check if we didn't overuse (count attempts <= self.attempts)
+        # If we are outside, set for hold
+        if self.__count_attempts > self.attempts:
+            logging.debug(f"Will signal hold because of count attempts: {self.__count_attempts}")
+            go_or_hold = self.HOLD
 
-        # We were allowed to run, so now we reset break timer start
-        if self._break_timer_start:
-            self._break_timer_start = None
+        # Check if we are inside the valid window (curent militime - timer_start <= self.window_length)
+        # if we are outside, set for hold!
+        current_window: int = current_mili - self.__timer_start
+        if current_window > self.window_length:
+            logging.debug(f"Will signal hold because of current window: {current_window}")
+            go_or_hold = self.HOLD
 
-        return self.GO, 0
+        # If we need to hold:
+        if go_or_hold == self.HOLD:
+            # - calculate hold time (remaining time for the window + self.break_length)
+            negative_window: int = current_mili - self.__timer_start
+            hold_time: int = self.break_length + negative_window
+            hold_time_seconds = hold_time / 1000 if hold_time > 0 else 0.0
+
+            logging.debug(
+                f"Hold signaled. counter: {self.__count_attempts}, hold_time: {hold_time_seconds}, "
+                f"negative_window: {negative_window}"
+            )
+
+            # - reset counter
+            self.__count_attempts = 1
+            # - unset timer start
+            self.__timer_start = None
+
+        # Get out
+        return go_or_hold, hold_time_seconds
 
     @staticmethod
     def __miliseconds(t: float) -> int:
@@ -91,14 +105,6 @@ class Handle(RegistrySettings):
     @_timer_start.setter
     def _timer_start(self, miliseconds: int) -> None:
         self.__timer_start = miliseconds
-
-    @property
-    def _break_timer_start(self) -> Optional[int]:
-        return self.__break_timer_start
-
-    @_break_timer_start.setter
-    def _break_timer_start(self, miliseconds: int) -> None:
-        self.__break_timer_start = miliseconds
 
     @property
     def _count_attempts(self) -> int:

@@ -16,10 +16,14 @@ def main():
     for x in range(1, 21):
         do_print(x)
 
+    print("*" * 78)
+
     # Demo on throttling single commands
     # - put what you need into the explicit wrapper call
     for x in range(1, 21):
         r.throttle(print(f"Iterating through anything else: {x}"))
+
+    print("*" * 78)
 
     # Demo on throttling iterative functions
     @r.throttle
