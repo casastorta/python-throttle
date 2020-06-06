@@ -1,7 +1,6 @@
 from functools import wraps
-from collections.abc import Iterable
 from time import sleep, time
-from typing import Any, Callable, Optional, Set
+from typing import Any, Callable, Iterable, Optional, Tuple, Union
 
 from .__settings import RegistrySettings
 
@@ -9,29 +8,25 @@ from .__settings import RegistrySettings
 class Handle(RegistrySettings):
     """Logic class for Registry functionality"""
 
+    GO = True
+    HOLD = False
+
     def __init__(self, *args, **kwargs):
         self.__timer_start: Optional[int] = None
         self.__break_timer_start: Optional[int] = None
         self.__count_attempts: int = 0
-
         super().__init__(*args, **kwargs)
 
-    def throttle(self, func):
+    def throttle(self, func: Callable):
         @wraps(func)
-        def wrapper_throttle(*args, **kwargs):
-
-            args_repr = [repr(a) for a in args]  # 1
-            kwargs_repr = [f"{k}={v!r}" for k, v in kwargs.items()]  # 2
-            signature = ", ".join(args_repr + kwargs_repr)  # 3
-            print(f"Calling {func.__name__}({signature})")
-
-            def __throttle_iterative():
+        def wrapper_throttle(*args, **kwargs) -> Any:
+            def __throttle_iterative() -> Iterable[Any]:
                 """Throttle call where func is iterative"""
-                for r in func(*args, **kwargs):  # type: Any
+                for r in func(*args, **kwargs):
                     yield r
-                    self.__stop_or_go()
+                    sleep_if_needed()
 
-            self.__stop_or_go()
+            sleep_if_needed()
             b = func(*args, **kwargs)
             if b is not None:
                 try:
@@ -40,12 +35,17 @@ class Handle(RegistrySettings):
                     return __throttle_iterative()
             return b
 
+        def sleep_if_needed() -> None:
+            __action, __length = self.__stop_or_go()  # type: bool, float
+            if __action == self.HOLD:
+                sleep(__length)
+
         if func is None:
-            self.__stop_or_go()
+            sleep_if_needed()
 
         return wrapper_throttle
 
-    def __stop_or_go(self) -> None:
+    def __stop_or_go(self) -> Tuple[bool, Union[float, int]]:
         if not self._timer_start:
             # Nothing was happening yet, let's start fresh
             self._timer_start = self.__miliseconds(time())
@@ -58,13 +58,15 @@ class Handle(RegistrySettings):
             end_of_break: int = self._break_timer_start + self.break_length
             if current_militime <= end_of_break:
                 new_break_len: int = end_of_break - current_militime
-                sleep(new_break_len / 1000)
+                hold_time: float = new_break_len / 1000
+                return self.HOLD, hold_time
         new_militime: int = self.__miliseconds(time())
 
         # Check if we haven't broke count attempts for the window
         if self._count_attempts >= self.attempts:
             self._break_timer_start = new_militime
-            sleep(self.break_length / 1000)
+            _hold_time: float = self.break_length / 1000
+            return self.HOLD, _hold_time
 
         # If we are outside of the window, reset count attempts and start of the window timer
         if (new_militime - self._timer_start) >= self.window_length:
@@ -75,6 +77,8 @@ class Handle(RegistrySettings):
         if self._break_timer_start:
             self._break_timer_start = None
         self._count_attempts += 1
+
+        return self.GO, 0
 
     @staticmethod
     def __miliseconds(t: float) -> int:
