@@ -21,8 +21,17 @@ def main():
     for x in range(1, 21):
         r.throttle(print(f"Iterating through anything else: {x}"))
 
+    # Demo on throttling iterative functions
+    @r.throttle
+    def demo_iteration():
+        for x in range(1, 21):
+            yield x
+
+    for num in demo_iteration():
+        print(f"Iterating through iterative type: {num}")
+
 
 if __name__ == "__main__":
     print(os.getcwd())
-    sys.path.append(os.path.abspath(os.getcwd() + "/src/"))
+    sys.path.append(os.path.abspath(os.getcwd() + os.sep + "src"))
     main()

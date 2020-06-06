@@ -1,5 +1,7 @@
+from functools import wraps
+from collections.abc import Iterable
 from time import sleep, time
-from typing import Callable, Optional
+from typing import Any, Callable, Optional, Set
 
 from .__settings import RegistrySettings
 
@@ -14,17 +16,36 @@ class Handle(RegistrySettings):
 
         super().__init__(*args, **kwargs)
 
-    def throttle(self, func: Optional[Callable]) -> Optional[Callable]:
-        def wrapper(*args, **kwargs):
+    def throttle(self, func):
+        @wraps(func)
+        def wrapper_throttle(*args, **kwargs):
+
+            args_repr = [repr(a) for a in args]  # 1
+            kwargs_repr = [f"{k}={v!r}" for k, v in kwargs.items()]  # 2
+            signature = ", ".join(args_repr + kwargs_repr)  # 3
+            print(f"Calling {func.__name__}({signature})")
+
+            def __throttle_iterative():
+                """Throttle call where func is iterative"""
+                for r in func(*args, **kwargs):  # type: Any
+                    yield r
+                    self.__stop_or_go()
+
             self.__stop_or_go()
-            func(*args, **kwargs)
+            b = func(*args, **kwargs)
+            if b is not None:
+                try:
+                    iter(b)
+                except TypeError:
+                    return __throttle_iterative()
+            return b
 
         if func is None:
             self.__stop_or_go()
 
-        return wrapper
+        return wrapper_throttle
 
-    def __stop_or_go(self):
+    def __stop_or_go(self) -> None:
         if not self._timer_start:
             # Nothing was happening yet, let's start fresh
             self._timer_start = self.__miliseconds(time())
@@ -38,15 +59,15 @@ class Handle(RegistrySettings):
             if current_militime <= end_of_break:
                 new_break_len: int = end_of_break - current_militime
                 sleep(new_break_len / 1000)
-        current_militime: int = self.__miliseconds(time())
+        new_militime: int = self.__miliseconds(time())
 
         # Check if we haven't broke count attempts for the window
         if self._count_attempts >= self.attempts:
-            self._break_timer_start = current_militime
+            self._break_timer_start = new_militime
             sleep(self.break_length / 1000)
 
         # If we are outside of the window, reset count attempts and start of the window timer
-        if (current_militime - self._timer_start) >= self.window_length:
+        if (new_militime - self._timer_start) >= self.window_length:
             self._timer_start = None
             self._count_attempts = 0
 
