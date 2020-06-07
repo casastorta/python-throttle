@@ -1,3 +1,3 @@
-from throttle.registry import Registry
+from throttle.settings import Settings
 
-TwitterStandard: Registry = Registry(name="TwitterStandard", window_length=900000, attempts=15, break_length=0)
+TwitterStandard: Settings = Settings(name="TwitterStandard", window_length=900000, attempts=15, break_length=0)

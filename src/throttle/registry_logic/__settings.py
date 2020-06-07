@@ -1,4 +1,4 @@
-class RegistrySettings:
+class ThrottleSettings:
     """Settings class for all registry related"""
 
     def __init__(self, name: str, window_length: int, attempts: int, break_length: int):

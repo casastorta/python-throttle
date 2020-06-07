@@ -3,18 +3,18 @@ from typing import Optional
 from unittest import TestCase
 
 import pytest
-from throttle.registry import Registry
+from throttle.settings import Settings
 
 
-class TestRegistryLogicHandler(TestCase):
+class TestThrottleLogicHandler(TestCase):
 
     WINDOWS_LENGTH: int = 20000
     BREAK_LENGTH: int = 30000
 
     @pytest.fixture(autouse=True)
     def setup(self):
-        self.registry_instance: Optional[Registry]
-        self.registry_instance = Registry(
+        self.registry_instance: Optional[Settings]
+        self.registry_instance = Settings(
             "Unit test registry", attempts=3, window_length=self.WINDOWS_LENGTH, break_length=self.BREAK_LENGTH
         )
         yield
@@ -62,7 +62,7 @@ class TestRegistryLogicHandler(TestCase):
     def test_break_window_length(self):
 
         break_len: int = 10000
-        r: Registry = Registry(name="short window settings", window_length=0, break_length=break_len, attempts=100)
+        r: Settings = Settings(name="short window settings", window_length=0, break_length=break_len, attempts=100)
 
         r.stop_or_go()
         sleep(0.001)

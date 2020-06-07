@@ -3,10 +3,10 @@ from functools import wraps
 from time import sleep, time
 from typing import Any, Callable, Iterable, Optional, Tuple, Union
 
-from .__settings import RegistrySettings
+from .__settings import ThrottleSettings
 
 
-class Handle(RegistrySettings):
+class Handle(ThrottleSettings):
     """Logic class for Registry functionality"""
 
     GO: bool = True

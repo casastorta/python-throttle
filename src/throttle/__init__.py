@@ -1,4 +1,4 @@
 from . import registries
-from .registry import DefaultRegistry, Registry
+from .settings import DefaultSettings, Settings
 
-__all__ = ["Registry", "DefaultRegistry", "registries"]
+__all__ = ["Settings", "DefaultSettings", "registries"]

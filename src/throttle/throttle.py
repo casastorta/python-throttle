@@ -1,81 +1,81 @@
 import logging
 from typing import Dict, Optional, Set
 
-from . import registry as rg
+from . import settings as rg
 
-_registries: Dict[str, rg.Registry] = {}
-_registries_keys: Set[str] = set()
-
-
-def registries_evidence_length() -> int:
-    global _registries_keys
-    return len(_registries_keys)
+_settings_registry: Dict[str, rg.Settings] = {}
+_settings_keys: Set[str] = set()
 
 
-def add_registry(
-    registry_settings: Optional[rg.Registry] = None, name: Optional[str] = None, replace: bool = True,
+def registry_evidence_length() -> int:
+    global _settings_keys
+    return len(_settings_keys)
+
+
+def add_settings(
+    throttle_settings: Optional[rg.Settings] = None, name: Optional[str] = None, replace: bool = True,
 ) -> None:
-    global _registries, _registries_keys
+    global _settings_registry, _settings_keys
 
-    if not registry_settings:
-        registry_settings = rg.DefaultRegistry()
+    if not throttle_settings:
+        throttle_settings = rg.DefaultSettings()
 
-    registry_name: str = name if name else registry_settings.name
+    settings_name: str = name if name else throttle_settings.name
 
-    if registry_name in _registries_keys:
+    if settings_name in _settings_keys:
         if replace is False:
             logging.warning(f"Registry with the name {name} is already evidenced, you've asked not to replace")
             return
 
-    _registries[registry_name] = registry_settings
-    _registries_keys.add(registry_name)
+    _settings_registry[settings_name] = throttle_settings
+    _settings_keys.add(settings_name)
 
 
-def get_registry(name: str) -> rg.Registry:
-    global _registries, _registries_keys
+def get_settings(name: str) -> rg.Settings:
+    global _settings_registry, _settings_keys
 
-    if name in _registries_keys:
-        return _registries[name]
+    if name in _settings_keys:
+        return _settings_registry[name]
 
     msg = f"Registry with the name {name} is not evidenced"
     logging.error(msg)
     raise KeyError(msg)
 
 
-def remove_registry(name: str) -> None:
-    global _registries, _registries_keys
+def remove_settings(name: str) -> None:
+    global _settings_registry, _settings_keys
 
-    if registries_evidence_length() == 0:
+    if registry_evidence_length() == 0:
         logging.warning(f"Registry evidence is empty and request was to delete registry {name}, nothing to delete")
         return
 
-    if name in _registries_keys:
-        _registries_keys.remove(name)
-        _registries.pop(name)
+    if name in _settings_keys:
+        _settings_keys.remove(name)
+        _settings_registry.pop(name)
     else:
         logging.warning(f"Registry with the name {name} is not evidenced, cannot remove")
 
 
-def remove_all_registries() -> None:
-    global _registries, _registries_keys
+def remove_all_settings() -> None:
+    global _settings_registry, _settings_keys
 
-    _registries.clear()
-    _registries_keys.clear()
+    _settings_registry.clear()
+    _settings_keys.clear()
 
 
-def get_default_registry() -> rg.Registry:
-    global _registries, _registries_keys
+def get_default_settings() -> rg.Settings:
+    global _settings_registry, _settings_keys
 
     key: str
 
-    if registries_evidence_length() == 0:
+    if registry_evidence_length() == 0:
         msg = "No registries defined, cannot decide for default registry"
         logging.error(msg)
         raise ValueError(msg)
 
-    if rg.default_registry_name in _registries_keys:
+    if rg.default_registry_name in _settings_keys:
         key = rg.default_registry_name
     else:
-        key = next(iter(_registries))
+        key = next(iter(_settings_registry))
 
-    return get_registry(key)
+    return get_settings(key)

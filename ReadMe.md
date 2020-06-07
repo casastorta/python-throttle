@@ -8,9 +8,9 @@ Firstly, import `throttle.Registry` class and set up your own registry ("registr
 class instance for throttle functionality):
 
 ```python
-from throttle import Registry
+from throttle import Settings
 
-r: Registry = Registry(name="demo registry", window_length=10, attempts=3, break_length=2000)
+r: Settings = Settings(name="demo registry", window_length=10, attempts=3, break_length=2000)
 ```
 
 ### Throttle any function
