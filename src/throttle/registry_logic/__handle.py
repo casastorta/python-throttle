@@ -9,8 +9,8 @@ from .__settings import RegistrySettings
 class Handle(RegistrySettings):
     """Logic class for Registry functionality"""
 
-    GO = True
-    HOLD = False
+    GO: bool = True
+    HOLD: bool = False
 
     def __init__(self, *args, **kwargs):
         self.__timer_start: Optional[int] = None
@@ -18,6 +18,8 @@ class Handle(RegistrySettings):
         super().__init__(*args, **kwargs)
 
     def throttle(self, func: Callable):  # pragma: no cover
+        # We don't cover this in unit tests, but in integration tests. Hence no-cover
+
         @wraps(func)
         def wrapper_throttle(*args, **kwargs) -> Any:
             def __throttle_iterative() -> Iterable[Any]:
@@ -34,6 +36,7 @@ class Handle(RegistrySettings):
                 except TypeError:
                     return b
                 else:
+                    # yield step
                     return __throttle_iterative()
             return b
 
@@ -60,6 +63,7 @@ class Handle(RegistrySettings):
 
         # Increase the usage counter
         self.__count_attempts = self.__count_attempts + 1
+        logging.debug(f"Increased count attempts to {self.__count_attempts}")
 
         # Check if we didn't overuse (count attempts <= self.attempts)
         # If we are outside, set for hold
@@ -86,7 +90,8 @@ class Handle(RegistrySettings):
                 f"negative_window: {negative_window}"
             )
 
-            # - reset counter
+            # - reset counter, but to one - because if we've had to hold a call it happened in a new window
+            #   (so next one will be no2)
             self.__count_attempts = 1
             # - unset timer start
             self.__timer_start = None
@@ -99,17 +104,9 @@ class Handle(RegistrySettings):
         return int(round(t * 1000))
 
     @property
-    def _timer_start(self) -> Optional[int]:
+    def timer_start(self) -> Optional[int]:
         return self.__timer_start
 
-    @_timer_start.setter
-    def _timer_start(self, miliseconds: int) -> None:
-        self.__timer_start = miliseconds
-
     @property
-    def _count_attempts(self) -> int:
+    def count_attempts(self) -> int:
         return self.__count_attempts
-
-    @_count_attempts.setter
-    def _count_attempts(self, counter: int) -> None:
-        self.__count_attempts = counter
