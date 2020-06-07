@@ -1,16 +1,4 @@
-import logging
-import os
-import sys
 from time import sleep
-
-root = logging.getLogger()
-root.setLevel(logging.DEBUG)
-
-handler = logging.StreamHandler(sys.stdout)
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-handler.setFormatter(formatter)
-root.addHandler(handler)
 
 
 def main():
@@ -58,9 +46,3 @@ def main():
 
     for num in demo_iteration():
         print(f"Always throttling 0.5 seconds: {num}")
-
-
-if __name__ == "__main__":
-    print(os.getcwd())
-    sys.path.append(os.path.abspath(os.getcwd() + os.sep + "src"))
-    main()

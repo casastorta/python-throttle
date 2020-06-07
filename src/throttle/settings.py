@@ -1,10 +1,11 @@
-from .registry_logic import __handle as rh
+from .settings_logic import __handle as rh
 
 default_registry_name: str = "Default Registry"
 
 
 class Settings(rh.Handle):
     """Interface class for Settings handling"""
+
     ...
 
 
