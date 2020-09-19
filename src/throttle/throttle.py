@@ -13,7 +13,9 @@ def registry_evidence_length() -> int:
 
 
 def add_settings(
-    throttle_settings: Optional[rg.Settings] = None, name: Optional[str] = None, replace: bool = True,
+    throttle_settings: Optional[rg.Settings] = None,
+    name: Optional[str] = None,
+    replace: bool = True,
 ) -> None:
     global _settings_registry, _settings_keys
 
@@ -24,7 +26,9 @@ def add_settings(
 
     if settings_name in _settings_keys:
         if replace is False:
-            logging.warning(f"Registry with the name {name} is already evidenced, you've asked not to replace")
+            logging.warning(
+                f"Registry with the name {name} is already evidenced, you've asked not to replace"
+            )
             return
 
     _settings_registry[settings_name] = throttle_settings
@@ -46,14 +50,18 @@ def remove_settings(name: str) -> None:
     global _settings_registry, _settings_keys
 
     if registry_evidence_length() == 0:
-        logging.warning(f"Registry evidence is empty and request was to delete registry {name}, nothing to delete")
+        logging.warning(
+            f"Registry evidence is empty and request was to delete registry {name}, nothing to delete"
+        )
         return
 
     if name in _settings_keys:
         _settings_keys.remove(name)
         _settings_registry.pop(name)
     else:
-        logging.warning(f"Registry with the name {name} is not evidenced, cannot remove")
+        logging.warning(
+            f"Registry with the name {name} is not evidenced, cannot remove"
+        )
 
 
 def remove_all_settings() -> None:

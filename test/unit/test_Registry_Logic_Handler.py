@@ -15,7 +15,10 @@ class TestThrottleLogicHandler(TestCase):
     def setup(self):
         self.registry_instance: Optional[Settings]
         self.registry_instance = Settings(
-            "Unit test registry", attempts=3, window_length=self.WINDOWS_LENGTH, break_length=self.BREAK_LENGTH
+            "Unit test registry",
+            attempts=3,
+            window_length=self.WINDOWS_LENGTH,
+            break_length=self.BREAK_LENGTH,
         )
         yield
         self.registry_instance = None
@@ -62,7 +65,12 @@ class TestThrottleLogicHandler(TestCase):
     def test_break_window_length(self):
 
         break_len: int = 10000
-        r: Settings = Settings(name="short window settings", window_length=0, break_length=break_len, attempts=100)
+        r: Settings = Settings(
+            name="short window settings",
+            window_length=0,
+            break_length=break_len,
+            attempts=100,
+        )
 
         r.stop_or_go()
         sleep(0.001)
