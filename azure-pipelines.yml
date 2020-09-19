@@ -34,4 +34,3 @@ steps:
 
   - script: |
       pytest -vv --cov=./src ./test
-    displayName: 'Coverage run'
