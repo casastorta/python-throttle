@@ -197,3 +197,6 @@ fabric.properties
 
 # Coverage reprots
 coverage_html
+
+# Unit and integration tests results
+junit

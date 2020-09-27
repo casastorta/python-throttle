@@ -30,6 +30,7 @@ class Handle(ThrottleSettings):
 
             sleep_if_needed()
             b = func(*args, **kwargs)
+
             if b is not None:
                 try:
                     iter(b)
@@ -43,6 +44,7 @@ class Handle(ThrottleSettings):
         def sleep_if_needed() -> None:
             __action, __length = self.stop_or_go()  # type: bool, float
             if __action == self.HOLD:
+                logging.debug(f"Sleeping for {__length} seconds because action is HOLD")
                 sleep(__length)
 
         if func is None:
@@ -60,6 +62,7 @@ class Handle(ThrottleSettings):
         # If window timer start not set, set it here now
         if not self.__timer_start:
             self.__timer_start = current_mili
+            logging.debug(f"Timer start set to {self.__timer_start}")
 
         # Increase the usage counter
         self.__count_attempts = self.__count_attempts + 1
@@ -68,30 +71,26 @@ class Handle(ThrottleSettings):
         # Check if we didn't overuse (count attempts <= self.attempts)
         # If we are outside, set for hold
         if self.__count_attempts > self.attempts:
-            logging.debug(
-                f"Will signal hold because of count attempts: {self.__count_attempts}"
-            )
+            logging.debug(f"Will signal hold because of count attempts: {self.__count_attempts}")
             go_or_hold = self.HOLD
 
         # Check if we are inside the valid window (curent militime - timer_start <= self.window_length)
-        # if we are outside, set for hold!
+        # if we are outside, reset the start time
         current_window: int = current_mili - self.__timer_start
         if current_window > self.window_length:
-            logging.debug(
-                f"Will signal hold because of current window: {current_window}"
-            )
-            go_or_hold = self.HOLD
+            logging.debug(f"Will reset the start time because of current window: {current_window}")
+            self.__timer_start = current_mili
 
         # If we need to hold:
         if go_or_hold == self.HOLD:
             # - calculate hold time (remaining time for the window + self.break_length)
-            negative_window: int = current_mili - self.__timer_start
+            negative_window: int = self.window_length - (current_mili - self.__timer_start)
             hold_time: int = self.break_length + negative_window
             hold_time_seconds = hold_time / 1000 if hold_time > 0 else 0.0
 
             logging.debug(
-                f"Hold signaled. counter: {self.__count_attempts}, hold_time: {hold_time_seconds}, "
-                f"negative_window: {negative_window}"
+                f"Hold signaled. counter: {self.__count_attempts}, hold_time: {hold_time}, "
+                f"hold_time_seconds: {hold_time_seconds}, negative_window: {negative_window}"
             )
 
             # - reset counter, but to one - because if we've had to hold a call it happened in a new window

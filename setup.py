@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name="Throttle",
-    version="0.9.0",
+    version="0.9.1",
     packages=["throttle"],
     author="Vedran Krivokuca",
     author_email="pydev@krivokuca.dev",
