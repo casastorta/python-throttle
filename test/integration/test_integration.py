@@ -50,7 +50,7 @@ class IntegrationTest(TestCase):
         Execution time of self.attempts+1 of pass helper being equal or larger than self.attempts+self.break_length
         times means that the throttle block got activated
         """
-        assert diff >= (self.window_length + self.break_length)
+        assert round(diff) >= round(self.window_length + self.break_length)
 
     def test_naive_cross_time(self):
         start_timer: float = time.time()
@@ -101,7 +101,7 @@ class IntegrationTest(TestCase):
         Execution time of self.attempts+1 of pass helper being equal or larger than self.attempts+self.break_length
         times means that the throttle block got activated
         """
-        assert diff >= (self.window_length + self.break_length)
+        assert round(diff) >= round(self.window_length + self.break_length)
 
     def test_decorator_cross_window(self):
         @self.registry_instance.throttle
