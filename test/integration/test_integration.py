@@ -74,11 +74,12 @@ class IntegrationTest(TestCase):
         def test_decorated():
             pass
 
+        diff = self.window_length  # This is here to fail if there are no iterations in this test
         start_timer: float = time.time()
         for i in range(self.attempts):
             test_decorated()
             current_timer: float = time.time()
-            diff = current_timer - start_timer
+            diff: float = current_timer - start_timer
         """
         Passing this every time means we've managed to execute pass helper self.attempt times and didn't
         cross the self.window_length period
