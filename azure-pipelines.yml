@@ -49,8 +49,3 @@ steps:
       codeCoverageTool: Cobertura
       summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.xml'
       reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'
-
-  #  - script: |
-  #      tox -e unit
-  #    displayName: 'Run Unit test'
-
