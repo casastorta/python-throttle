@@ -31,9 +31,21 @@ steps:
     displayName: 'Install dependencies'
 
   - script: |
-      pytest -vv
-    displayName: 'pytest'
+      pip install tox
+    displayName: 'Install Tox'
 
   - script: |
-      pytest -vv --cov=./src ./test --cov-fail-under=100
-    displayName: 'Coverage run'
+      tox -e cov-html
+    displayName: 'Run Coverage tests'
+
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFiles: '**/test-*.xml'
+      testRunTitle: 'Publish test results for Python $(python.version)'
+
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.xml'
+      reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'
