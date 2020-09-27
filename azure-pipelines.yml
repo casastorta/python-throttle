@@ -31,9 +31,13 @@ steps:
     displayName: 'Install dependencies'
 
   - script: |
-      pytest -vv
-    displayName: 'pytest'
+      pip install tox
+    displayName: 'Install Tox'
 
   - script: |
-      pytest -vv --cov=./src ./test --cov-fail-under=100
-    displayName: 'Coverage run'
+      tox -e cov-html
+    displayName: 'Run Coverage tests'
+
+#  - script: |
+#      tox -e unit
+#    displayName: 'Run Unit test'
