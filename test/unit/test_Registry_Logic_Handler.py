@@ -3,6 +3,7 @@ from typing import Optional
 from unittest import TestCase
 
 import pytest
+
 from throttle.settings import Settings
 
 

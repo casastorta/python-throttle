@@ -68,18 +68,14 @@ class Handle(ThrottleSettings):
         # Check if we didn't overuse (count attempts <= self.attempts)
         # If we are outside, set for hold
         if self.__count_attempts > self.attempts:
-            logging.debug(
-                f"Will signal hold because of count attempts: {self.__count_attempts}"
-            )
+            logging.debug(f"Will signal hold because of count attempts: {self.__count_attempts}")
             go_or_hold = self.HOLD
 
         # Check if we are inside the valid window (curent militime - timer_start <= self.window_length)
         # if we are outside, set for hold!
         current_window: int = current_mili - self.__timer_start
         if current_window > self.window_length:
-            logging.debug(
-                f"Will signal hold because of current window: {current_window}"
-            )
+            logging.debug(f"Will signal hold because of current window: {current_window}")
             go_or_hold = self.HOLD
 
         # If we need to hold:

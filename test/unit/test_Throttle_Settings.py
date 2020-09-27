@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 import pytest
+
 from throttle.settings import DefaultSettings, Settings, default_registry_name
 
 
@@ -24,42 +25,30 @@ class TestSettings(TestCase):
 
     def test_invalid_type_length(self):
         with pytest.raises(ValueError):
-            r: Settings = Settings(
-                name="abc", window_length="z", attempts=2, break_length=3
-            )
+            r: Settings = Settings(name="abc", window_length="z", attempts=2, break_length=3)
             del r
 
     def test_negative_param_length(self):
         with pytest.raises(ValueError):
-            r: Settings = Settings(
-                name="abc", window_length=-3, attempts=2, break_length=3
-            )
+            r: Settings = Settings(name="abc", window_length=-3, attempts=2, break_length=3)
             del r
 
     def test_invalid_type_attempts(self):
         with pytest.raises(ValueError):
-            r: Settings = Settings(
-                name="abc", window_length=1, attempts="z", break_length=3
-            )
+            r: Settings = Settings(name="abc", window_length=1, attempts="z", break_length=3)
             del r
 
     def test_negative_param_attempts(self):
         with pytest.raises(ValueError):
-            r: Settings = Settings(
-                name="abc", window_length=1, attempts=-2, break_length=3
-            )
+            r: Settings = Settings(name="abc", window_length=1, attempts=-2, break_length=3)
             del r
 
     def test_invalid_type_break_length(self):
         with pytest.raises(ValueError):
-            r: Settings = Settings(
-                name="abc", window_length=1, attempts=2, break_length="z"
-            )
+            r: Settings = Settings(name="abc", window_length=1, attempts=2, break_length="z")
             del r
 
     def test_negative_break_length(self):
         with pytest.raises(ValueError):
-            r: Settings = Settings(
-                name="abc", window_length=1, attempts=2, break_length=-1
-            )
+            r: Settings = Settings(name="abc", window_length=1, attempts=2, break_length=-1)
             del r

@@ -13,9 +13,7 @@ class ThrottleSettings:
             raise ValueError("Registry settings for numerical parameters must be int's")
 
         if not all(abs(i) == i for i in [window_length, attempts, break_length]):
-            raise ValueError(
-                "Registry settings for numerical parameters must be 0 or greater"
-            )
+            raise ValueError("Registry settings for numerical parameters must be 0 or greater")
 
         self.__name: str = name
         self.__window_length: int = window_length

@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 import pytest
+
 from throttle import throttle as th
 from throttle.settings import DefaultSettings, Settings, default_registry_name
 
@@ -9,14 +10,10 @@ class TestThrottle(TestCase):
     @staticmethod
     def helper_add_two_same_settings(registry_name: str, replace: bool) -> None:
         # Add first registry
-        r: Settings = Settings(
-            name=registry_name, window_length=1, attempts=2, break_length=3
-        )
+        r: Settings = Settings(name=registry_name, window_length=1, attempts=2, break_length=3)
         th.add_settings(r)
         # Add second registry
-        z: Settings = Settings(
-            registry_name, window_length=4, attempts=5, break_length=6
-        )
+        z: Settings = Settings(registry_name, window_length=4, attempts=5, break_length=6)
         th.add_settings(z, replace=replace)
 
     @staticmethod

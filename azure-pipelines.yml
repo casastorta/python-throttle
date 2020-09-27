@@ -36,7 +36,11 @@ steps:
 
   - script: |
       tox -e cov-html
-    displayName: 'Run Coverage tests'
+    displayName: 'Run Unit tests and Coverage report'
+
+  - script: |
+      tox -e integration
+    displayName: 'Run Integration tests'
 
   - task: PublishTestResults@2
     condition: succeededOrFailed()
