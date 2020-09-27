@@ -64,7 +64,6 @@ class TestThrottleLogicHandler(TestCase):
         assert self.registry_instance.count_attempts == 1
 
     def test_break_window_length(self):
-
         break_len: int = 10000
         r: Settings = Settings(
             name="short window settings",
@@ -77,5 +76,5 @@ class TestThrottleLogicHandler(TestCase):
         sleep(0.001)
         go_nogo, wait_time = r.stop_or_go()
 
-        assert go_nogo == r.HOLD
-        assert 0 < wait_time < break_len
+        assert go_nogo == r.GO
+        assert 0 == wait_time < break_len

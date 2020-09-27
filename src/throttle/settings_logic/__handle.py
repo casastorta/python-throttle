@@ -74,11 +74,11 @@ class Handle(ThrottleSettings):
             go_or_hold = self.HOLD
 
         # Check if we are inside the valid window (curent militime - timer_start <= self.window_length)
-        # if we are outside, set for hold!
+        # if we are outside, reset the start time
         current_window: int = current_mili - self.__timer_start
         if current_window > self.window_length:
-            logging.debug(f"Will signal hold because of current window: {current_window}")
-            go_or_hold = self.HOLD
+            logging.debug(f"Will reset the start time because of current window: {current_window}")
+            self.__timer_start = current_mili
 
         # If we need to hold:
         if go_or_hold == self.HOLD:

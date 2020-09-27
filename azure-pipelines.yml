@@ -35,6 +35,10 @@ steps:
     displayName: 'Install Tox'
 
   - script: |
+      tox -e flake8,typecheck
+    displayName: 'Run Flake8 and MyPy linters'
+
+  - script: |
       tox -e cov-html
     displayName: 'Run Unit tests and Coverage report'
 

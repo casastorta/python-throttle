@@ -1,4 +1,3 @@
-import datetime
 import time
 from unittest import TestCase
 
@@ -52,3 +51,20 @@ class IntegrationTest(TestCase):
         times means that the throttle block got activated
         """
         assert diff >= (self.window_length + self.break_length)
+
+    def test_naive_cross_time(self):
+        start_timer: float = time.time()
+        hold: float = (self.window_length / 2) / 1000
+        for i in range(3):
+            self.registry_instance.throttle(self.helper_pass())
+            time.sleep(hold)
+
+        current_timer: float = time.time()
+        diff = (current_timer - start_timer) * 1000
+
+        """
+        In this scenario, literally nothing special should happen. Overall, 3 iterations should have ran roughly
+        1.5x the self.window_length
+        """
+        assert diff > self.window_length
+        assert diff < self.window_length * 1.6
