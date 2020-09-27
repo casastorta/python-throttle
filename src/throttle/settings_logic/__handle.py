@@ -30,6 +30,7 @@ class Handle(ThrottleSettings):
 
             sleep_if_needed()
             b = func(*args, **kwargs)
+
             if b is not None:
                 try:
                     iter(b)
