@@ -43,6 +43,7 @@ class Handle(ThrottleSettings):
         def sleep_if_needed() -> None:
             __action, __length = self.stop_or_go()  # type: bool, float
             if __action == self.HOLD:
+                logging.debug(f"Sleeping for {__length} seconds because action is HOLD")
                 sleep(__length)
 
         if func is None:
@@ -60,6 +61,7 @@ class Handle(ThrottleSettings):
         # If window timer start not set, set it here now
         if not self.__timer_start:
             self.__timer_start = current_mili
+            logging.debug(f"Timer start set to {self.__timer_start}")
 
         # Increase the usage counter
         self.__count_attempts = self.__count_attempts + 1
@@ -81,13 +83,13 @@ class Handle(ThrottleSettings):
         # If we need to hold:
         if go_or_hold == self.HOLD:
             # - calculate hold time (remaining time for the window + self.break_length)
-            negative_window: int = current_mili - self.__timer_start
+            negative_window: int = self.window_length - (current_mili - self.__timer_start)
             hold_time: int = self.break_length + negative_window
             hold_time_seconds = hold_time / 1000 if hold_time > 0 else 0.0
 
             logging.debug(
-                f"Hold signaled. counter: {self.__count_attempts}, hold_time: {hold_time_seconds}, "
-                f"negative_window: {negative_window}"
+                f"Hold signaled. counter: {self.__count_attempts}, hold_time: {hold_time}, "
+                f"hold_time_seconds: {hold_time_seconds}, negative_window: {negative_window}"
             )
 
             # - reset counter, but to one - because if we've had to hold a call it happened in a new window
