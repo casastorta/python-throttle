@@ -5,6 +5,8 @@
 
 trigger:
   - master
+  - develop
+  - feature/*
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -33,5 +35,5 @@ steps:
     displayName: 'pytest'
 
   - script: |
-      pytest -vv --cov=./src ./test
+      pytest -vv --cov=./src ./test --cov-fail-under=100
     displayName: 'Coverage run'
