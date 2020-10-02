@@ -14,7 +14,7 @@ class Handle(ThrottleSettings):
 
     def __init__(self, *args, **kwargs):
         self.__timer_start: Optional[int] = None
-        self.__count_attempts: int = 0
+        self.__count_attempts: list = []
         super().__init__(*args, **kwargs)
 
     def throttle(self, func: Callable):  # pragma: no cover
@@ -65,13 +65,13 @@ class Handle(ThrottleSettings):
             logging.debug(f"Timer start set to {self.__timer_start}")
 
         # Increase the usage counter
-        self.__count_attempts = self.__count_attempts + 1
-        logging.debug(f"Increased count attempts to {self.__count_attempts}")
+        self.__count_attempts.append(True)
+        logging.debug(f"Increased count attempts to {self.count_attempts}")
 
         # Check if we didn't overuse (count attempts <= self.attempts)
         # If we are outside, set for hold
-        if self.__count_attempts > self.attempts:
-            logging.debug(f"Will signal hold because of count attempts: {self.__count_attempts}")
+        if self.count_attempts > self.attempts:
+            logging.debug(f"Will signal hold because of count attempts: {self.count_attempts}")
             go_or_hold = self.HOLD
 
         # Check if we are inside the valid window (curent militime - timer_start <= self.window_length)
@@ -89,13 +89,14 @@ class Handle(ThrottleSettings):
             hold_time_seconds = hold_time / 1000 if hold_time > 0 else 0.0
 
             logging.debug(
-                f"Hold signaled. counter: {self.__count_attempts}, hold_time: {hold_time}, "
+                f"Hold signaled. counter: {self.count_attempts}, hold_time: {hold_time}, "
                 f"hold_time_seconds: {hold_time_seconds}, negative_window: {negative_window}"
             )
 
             # - reset counter, but to one - because if we've had to hold a call it happened in a new window
             #   (so next one will be no2)
-            self.__count_attempts = 1
+            self.__count_attempts.clear()
+            self.__count_attempts.append(True)
             # - unset timer start
             self.__timer_start = None
 
@@ -112,4 +113,4 @@ class Handle(ThrottleSettings):
 
     @property
     def count_attempts(self) -> int:
-        return self.__count_attempts
+        return len(self.__count_attempts)
