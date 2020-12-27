@@ -36,7 +36,7 @@ class ThreadingIntegrationTest(TestCase):
             pass
             end_time: int = time.time()
             duration: int = end_time - start_time
-            end_times.append(int(duration))
+            end_times.append(round(duration, 3))
             logging.debug(f"Worker {num} ran for {duration}")
 
         threads: list = []
@@ -52,7 +52,7 @@ class ThreadingIntegrationTest(TestCase):
 
         logging.debug(f"Thread end times: {end_times}")
 
-        end_tuple = tuple(end_times)
+        end_tuple = tuple(int(end_time) for end_time in end_times)
         del end_times
 
         assert end_tuple.count(0) == 3, "0 does not repeat 3 times"
