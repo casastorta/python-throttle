@@ -1,7 +1,8 @@
+import time
 from time import sleep
 from typing import Optional
 from unittest import TestCase
-import time
+
 import pytest
 
 from throttle.settings import Settings

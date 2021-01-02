@@ -14,6 +14,7 @@ class Handle(ThrottleSettings):
     HOLD: bool = False
 
     def __init__(self, *args, **kwargs):
+        self.__concurrent_flag: bool = False
         self.__semaphore: Semaphore = Semaphore()
         self.__timer_start: Optional[int] = None
         super().__init__(*args, **kwargs)
@@ -35,8 +36,8 @@ class Handle(ThrottleSettings):
         def wrapper_throttle(*args, **kwargs) -> Any:  # pragma: no cover
             def __throttle_iterative() -> Iterable[Any]:
                 """Throttle call where func is iterative"""
-                self.remove_attempt()
-                for r in iter(b):
+                # self.remove_attempt()
+                for r in b:
                     self.remove_concurrent()
                     yield r
                     sleep_if_needed()
@@ -158,6 +159,9 @@ class Handle(ThrottleSettings):
                 f"cool_down_period_sum={cool_down_period_sum} and current_windows={current_windows}, "
                 f"required_timeout will be {required_timeout}"
             )
+            if not self.__concurrent_flag:
+                self.__concurrent_flag = True
+                logging.debug("throttle.settings.time_due_queue: breaking the concurrent flag seal")
         else:
             logging.debug(
                 "throttle.settings.time_due_queue: "

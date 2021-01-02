@@ -19,6 +19,8 @@ def main():
     for x in range(1, 22):
         r.throttle(print(f"Iterating through anything else: {x}, took {round(time.time() - start_time, 1)} seconds"))
 
+    r.destroy()
+
 
 if __name__ == "__main__":
     logging_setup.set_up_logging()

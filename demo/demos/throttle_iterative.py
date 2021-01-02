@@ -23,6 +23,7 @@ def main():
     start_time = time.time()
     for num in demo_iteration():
         print(f"Iterating through iterative type: {num}, took {round(time.time() - start_time, 1)} seconds")
+    r.destroy()
 
 
 if __name__ == "__main__":

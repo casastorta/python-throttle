@@ -27,6 +27,8 @@ def main():
     for num in demo_iteration():
         print(f"Always throttling 0.5 seconds: {num}, took {round(time.time() - start_time, 1)} seconds")
 
+    ra.destroy()
+
 
 if __name__ == "__main__":
     logging_setup.set_up_logging()

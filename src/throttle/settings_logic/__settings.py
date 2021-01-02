@@ -61,12 +61,12 @@ class ThrottleSettings:
         """
         We are locking adding attempts to avoid simoultaneous clear of the count attempts while adding
         """
-        self.__count_attempts.put(True)
+        self.__count_attempts.put(True, block=True)
         logging.debug(f"ThrottleSettings.add_attempts: called, new attempts count: {self.count_attempts}")
 
     def remove_attempt(self) -> None:
         try:
-            self.__count_attempts.get()
+            self.__count_attempts.get(block=True)
             logging.debug(f"ThrottleSettings.remove_attempt: called, new attempt count: {self.count_attempts}")
         except ExceptionEmpty:
             logging.error("ThrottleSettings.remove_attempt: hit ExceptionEmpty")
@@ -76,12 +76,12 @@ class ThrottleSettings:
         self.__count_attempts = Queue()
 
     def add_concurrent(self) -> None:
-        self.__concurrent_counter.put(True)
+        self.__concurrent_counter.put(True, block=True)
         logging.debug(f"ThrottleSettings.add_concurrent: called, new concurrent count: {self.count_concurrent}")
 
     def remove_concurrent(self) -> None:
         try:
-            self.__concurrent_counter.get()
+            self.__concurrent_counter.get(block=True)
             logging.debug(f"ThrottleSettings.remove_concurrent: called, new concurrent count: {self.count_concurrent}")
         except ExceptionEmpty:
             logging.error("ThrottleSettings.remove_concurrent: hit ExceptionEmpty")

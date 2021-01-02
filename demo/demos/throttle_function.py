@@ -24,6 +24,8 @@ def main():
     for x in range(1, 22):
         do_print(x)
 
+    r.destroy()
+
 
 if __name__ == "__main__":
     logging_setup.set_up_logging()
