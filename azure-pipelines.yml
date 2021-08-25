@@ -31,10 +31,6 @@ steps:
     displayName: 'Install dependencies'
 
   - script: |
-      pip install tox
-    displayName: 'Install Tox'
-
-  - script: |
       tox -e flake8,typecheck
     displayName: 'Run Flake8 and MyPy linters'
 
