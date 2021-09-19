@@ -6,7 +6,8 @@ default_registry_name: str = "Default Registry"
 class Settings(rh.Handle):
     """Interface class for Settings handling"""
 
-    ...
+    def destroy(self):
+        self.__del__()
 
 
 __DefaultThrottleSettings: Settings = Settings(

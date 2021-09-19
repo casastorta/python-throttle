@@ -1,3 +1,4 @@
+import time
 from time import sleep
 from typing import Optional
 from unittest import TestCase
@@ -50,6 +51,7 @@ class TestThrottleLogicHandler(TestCase):
     def test_stop_or_go_attempts_count_hit_attempts_limit(self):
         go_nogo: Optional[bool] = None
         wait_time: Optional[float] = None
+        start_time: float = time.time()
         for i in range(1, 5):
             go_nogo, wait_time = self.registry_instance.stop_or_go()
 
@@ -59,7 +61,7 @@ class TestThrottleLogicHandler(TestCase):
         assert 0 < wait_time < self.BREAK_LENGTH
 
         # On broken window, timer start is reset to None
-        assert self.registry_instance.timer_start is None
+        assert self.registry_instance.timer_start > start_time
         # On broken window, attempts are reset to 1
         assert self.registry_instance.count_attempts == 1
 
